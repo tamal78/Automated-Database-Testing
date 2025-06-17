@@ -1,0 +1,155 @@
+Using database: classicmodels
+
+-- Query 1: INNER JOIN: List customer names and their order dates
+--- Result ---
+customerName	orderDate
+Online Diecast Creations Co.	2003-01-06
+Blauer See Auto, Co.	2003-01-09
+Vitachrome Inc.	2003-01-10
+Baane Mini Imports	2003-01-29
+Euro+ Shopping Channel	2003-01-31
+Danish Wholesale Imports	2003-02-11
+Rovelli Gifts	2003-02-17
+Land of Toys Inc.	2003-02-24
+Cruz & Sons Co.	2003-03-03
+Motor Mint Distributors Inc.	2003-03-10
+--- End Result (Success) ---
+
+==============================
+
+-- Query 2: LEFT JOIN: List all customers and any payments they have made
+--- Result ---
+customerName	paymentDate	amount
+Atelier graphique	2004-10-19	6066.78
+Atelier graphique	2003-06-05	14571.44
+Atelier graphique	2004-12-18	1676.14
+Signal Gift Stores	2004-12-17	14191.12
+Signal Gift Stores	2003-06-06	32641.98
+Signal Gift Stores	2004-08-20	33347.88
+Australian Collectors, Co.	2003-05-20	45864.03
+Australian Collectors, Co.	2004-12-15	82261.22
+Australian Collectors, Co.	2003-05-31	7565.08
+Australian Collectors, Co.	2004-03-10	44894.74
+--- End Result (Success) ---
+
+==============================
+
+-- Query 3: RIGHT JOIN: List payments and associated customers (if any)
+--- Result ---
+paymentDate	amount	customerName
+2004-10-19	6066.78	Atelier graphique
+2003-06-05	14571.44	Atelier graphique
+2004-12-18	1676.14	Atelier graphique
+2004-12-17	14191.12	Signal Gift Stores
+2003-06-06	32641.98	Signal Gift Stores
+2004-08-20	33347.88	Signal Gift Stores
+2003-05-20	45864.03	Australian Collectors, Co.
+2004-12-15	82261.22	Australian Collectors, Co.
+2003-05-31	7565.08	Australian Collectors, Co.
+2004-03-10	44894.74	Australian Collectors, Co.
+--- End Result (Success) ---
+
+==============================
+
+-- Query 4: FULL OUTER JOIN (simulated using UNION): Combine all customers and payments
+--- Result ---
+customerNumber	customerName	paymentDate	amount
+103	Atelier graphique	2004-10-19	6066.78
+103	Atelier graphique	2003-06-05	14571.44
+103	Atelier graphique	2004-12-18	1676.14
+112	Signal Gift Stores	2004-12-17	14191.12
+112	Signal Gift Stores	2003-06-06	32641.98
+112	Signal Gift Stores	2004-08-20	33347.88
+114	Australian Collectors, Co.	2003-05-20	45864.03
+114	Australian Collectors, Co.	2004-12-15	82261.22
+114	Australian Collectors, Co.	2003-05-31	7565.08
+114	Australian Collectors, Co.	2004-03-10	44894.74
+--- End Result (Success) ---
+
+==============================
+
+-- Query 5: JOIN with aggregation: Total payments per customer
+--- Result ---
+customerName	total_payments
+Atelier graphique	22314.36
+Signal Gift Stores	80180.98
+Australian Collectors, Co.	180585.07
+La Rochelle Gifts	116949.68
+Baane Mini Imports	104224.79
+Mini Gifts Distributors Ltd.	584188.24
+Blauer See Auto, Co.	75937.76
+Mini Wheels Co.	66710.56
+Land of Toys Inc.	107639.94
+Euro+ Shopping Channel	715738.98
+--- End Result (Success) ---
+
+==============================
+
+-- Query 6: SELF JOIN: List employees and their managers
+--- Result ---
+employee	manager
+Mary	Diane
+Jeff	Diane
+William	Mary
+Gerard	Mary
+Anthony	Mary
+Leslie	Anthony
+Leslie	Anthony
+Julie	Anthony
+Steve	Anthony
+Foon Yue	Anthony
+--- End Result (Success) ---
+
+==============================
+
+-- Query 7: JOIN with condition: List customers from USA who have made payments
+--- Result ---
+customerName	amount
+Signal Gift Stores	14191.12
+Signal Gift Stores	32641.98
+Signal Gift Stores	33347.88
+Mini Gifts Distributors Ltd.	101244.59
+Mini Gifts Distributors Ltd.	85410.87
+Mini Gifts Distributors Ltd.	11044.30
+Mini Gifts Distributors Ltd.	83598.04
+Mini Gifts Distributors Ltd.	47142.70
+Mini Gifts Distributors Ltd.	55639.66
+Mini Gifts Distributors Ltd.	111654.40
+--- End Result (Success) ---
+
+==============================
+
+-- Query 8: UNION: Combine customer names and employee names into a single list
+--- Result ---
+name	type
+Atelier graphique	Customer
+Signal Gift Stores	Customer
+Australian Collectors, Co.	Customer
+La Rochelle Gifts	Customer
+Baane Mini Imports	Customer
+Mini Gifts Distributors Ltd.	Customer
+Havel & Zbyszek Co	Customer
+Blauer See Auto, Co.	Customer
+Mini Wheels Co.	Customer
+Land of Toys Inc.	Customer
+--- End Result (Success) ---
+
+==============================
+
+-- Query 9: JOIN: List offices and the employees working in each
+--- Result ---
+office_city	firstName	lastName
+San Francisco	Diane	Murphy
+San Francisco	Mary	Patterson
+San Francisco	Jeff	Firrelli
+San Francisco	Anthony	Bow
+San Francisco	Leslie	Jennings
+San Francisco	Leslie	Thompson
+Boston	Julie	Firrelli
+Boston	Steve	Patterson
+NYC	Foon Yue	Tseng
+NYC	George	Vanauf
+--- End Result (Success) ---
+
+==============================
+

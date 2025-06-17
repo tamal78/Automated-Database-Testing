@@ -1,0 +1,106 @@
+Using database: classicmodels
+
+-- Query 1: Insert a new customer (single-row insert)
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+customerNumber	customerName	contactLastName	contactFirstName	phone	addressLine1	addressLine2	city	state	postalCode	country	salesRepEmployeeNumber	creditLimit
+99991	NeoTech Ltd.	Anderson	Thomas	123-555-0199	77 Trinity Ave	NULL	Zion	NULL	NULL	USA	NULL	25000.00
+--- End Result (Success) ---
+
+==============================
+
+-- Query 2: Insert multiple customers at once
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+customerNumber	customerName	contactLastName	contactFirstName	phone	addressLine1	addressLine2	city	state	postalCode	country	salesRepEmployeeNumber	creditLimit
+99992	Matrix Corp.	Smith	Agent	321-555-0101	1 Loop Rd	NULL	MegaCity	NULL	NULL	USA	NULL	40000.00
+99993	Sentinel Systems	Sentinel	Unit01	456-555-0112	Deep Sea Base	NULL	Abyss	NULL	NULL	Unknown	NULL	50000.00
+--- End Result (Success) ---
+
+==============================
+
+-- Query 3: Insert into payments with only required columns
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+customerNumber	checkNumber	paymentDate	amount
+103	CHK999991	2025-06-15	1500.00
+--- End Result (Success) ---
+
+==============================
+
+-- Query 4: Insert a product using all columns
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+productCode	productName	productLine	productScale	productVendor	productDescription	quantityInStock	buyPrice	MSRP
+NEO_001	Neo Gadget	Classic Cars	1:10	NeoVendor Inc.	A futuristic gadget from the Matrix.	100	199.99	299.99
+--- End Result (Success) ---
+
+==============================
+
+-- Query 5: Insert using default values (if table allows DEFAULTs)
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+officeCode	city	phone	addressLine1	addressLine2	state	country	postalCode	territory
+99	Nowhere	999-999-9999	Null Street	NULL	NULL	NowhereLand	000000	ZZ
+--- End Result (Success) ---
+
+==============================
+
+-- Query 6: Insert employee with foreign key reference to an office
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+employeeNumber	lastName	firstName	extension	email	officeCode	reportsTo	jobTitle
+1999	Reeves	Keanu	x9999	keanu.reeves@classicmodels.com	1	NULL	The One
+--- End Result (Success) ---
+
+==============================
+
+-- Query 7: Insert an order and matching order detail
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+orderNumber	orderDate	requiredDate	shippedDate	status	comments	customerNumber
+99991	2025-06-15	2025-06-25	NULL	In Process	NULL	103
+--- End Result (Success) ---
+
+==============================
+
+--- Result ---
+orderNumber	productCode	quantityOrdered	priceEach	orderLineNumber
+99991	S10_1678	20	100.00	1
+--- End Result (Success) ---
+
+==============================
+

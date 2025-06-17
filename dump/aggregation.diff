@@ -1,0 +1,11 @@
+Query #1:
+Extra line 18 in aggregation.res: Austria	2
+
+Query #2:
+Extra line 48 in aggregation.ctr: Finland	3
+Line 56, mismatch(es): expected '44678.487500', got '44478.487500'
+
+Query #4:
+Line 167, missing word(s): 'total_products'
+Line 168, missing word(s): '38'
+

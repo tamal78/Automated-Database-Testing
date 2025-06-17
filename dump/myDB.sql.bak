@@ -1,0 +1,300 @@
+/* Recreate and populate the classicmodels database with 20 rows per table */
+DROP DATABASE IF EXISTS classicmodels;
+
+CREATE DATABASE classicmodels;
+
+USE classicmodels;
+
+/* Create Tables */
+CREATE TABLE productlines (
+  productLine varchar(50),
+  textDescription varchar(4000) DEFAULT NULL,
+  htmlDescription mediumtext,
+  image mediumblob,
+  PRIMARY KEY (productLine)
+);
+
+CREATE TABLE offices (
+  officeCode varchar(10),
+  city varchar(50) NOT NULL,
+  phone varchar(50) NOT NULL,
+  addressLine1 varchar(50) NOT NULL,
+  addressLine2 varchar(50) DEFAULT NULL,
+  state varchar(50) DEFAULT NULL,
+  country varchar(50) NOT NULL,
+  postalCode varchar(15) NOT NULL,
+  territory varchar(10) NOT NULL,
+  PRIMARY KEY (officeCode)
+);
+
+CREATE TABLE employees (
+  employeeNumber int,
+  lastName varchar(50) NOT NULL,
+  firstName varchar(50) NOT NULL,
+  extension varchar(10) NOT NULL,
+  email varchar(100) NOT NULL,
+  officeCode varchar(10) NOT NULL,
+  reportsTo int DEFAULT NULL,
+  jobTitle varchar(50) NOT NULL,
+  PRIMARY KEY (employeeNumber),
+  FOREIGN KEY (reportsTo) REFERENCES employees (employeeNumber),
+  FOREIGN KEY (officeCode) REFERENCES offices (officeCode)
+);
+
+CREATE TABLE customers (
+  customerNumber int,
+  customerName varchar(50) NOT NULL,
+  contactLastName varchar(50) NOT NULL,
+  contactFirstName varchar(50) NOT NULL,
+  phone varchar(50) NOT NULL,
+  addressLine1 varchar(50) NOT NULL,
+  addressLine2 varchar(50) DEFAULT NULL,
+  city varchar(50) NOT NULL,
+  state varchar(50) DEFAULT NULL,
+  postalCode varchar(15) DEFAULT NULL,
+  country varchar(50) NOT NULL,
+  salesRepEmployeeNumber int DEFAULT NULL,
+  creditLimit decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (customerNumber),
+  FOREIGN KEY (salesRepEmployeeNumber) REFERENCES employees (employeeNumber)
+);
+
+CREATE TABLE payments (
+  customerNumber int,
+  checkNumber varchar(50) NOT NULL,
+  paymentDate date NOT NULL,
+  amount decimal(10,2) NOT NULL,
+  PRIMARY KEY (customerNumber,checkNumber),
+  FOREIGN KEY (customerNumber) REFERENCES customers (customerNumber)
+);
+
+CREATE TABLE products (
+  productCode varchar(15),
+  productName varchar(70) NOT NULL,
+  productLine varchar(50) NOT NULL,
+  productScale varchar(10) NOT NULL,
+  productVendor varchar(50) NOT NULL,
+  productDescription text NOT NULL,
+  quantityInStock smallint(6) NOT NULL,
+  buyPrice decimal(10,2) NOT NULL,
+  MSRP decimal(10,2) NOT NULL,
+  PRIMARY KEY (productCode),
+  FOREIGN KEY (productLine) REFERENCES productlines (productLine)
+);
+
+CREATE TABLE orders (
+  orderNumber int,
+  orderDate date NOT NULL,
+  requiredDate date NOT NULL,
+  shippedDate date DEFAULT NULL,
+  status varchar(15) NOT NULL,
+  comments text,
+  customerNumber int NOT NULL,
+  PRIMARY KEY (orderNumber),
+  FOREIGN KEY (customerNumber) REFERENCES customers (customerNumber)
+);
+
+CREATE TABLE orderdetails (
+  orderNumber int,
+  productCode varchar(15) NOT NULL,
+  quantityOrdered int NOT NULL,
+  priceEach decimal(10,2) NOT NULL,
+  orderLineNumber smallint(6) NOT NULL,
+  PRIMARY KEY (orderNumber,productCode),
+  FOREIGN KEY (orderNumber) REFERENCES orders (orderNumber),
+  FOREIGN KEY (productCode) REFERENCES products (productCode)
+);
+
+/* Insert data - 20 rows each */
+/* Insertion order follows foreign key dependencies:
+   productlines, offices, employees, customers, products, orders, payments, orderdetails
+*/
+
+/* productlines */
+INSERT INTO productlines VALUES
+('Classic Cars', 'Detailed diecast models of classic cars.', NULL, NULL),
+('Motorcycles', 'High-quality model motorcycles.', NULL, NULL),
+('Planes', 'Scale models of airplanes.', NULL, NULL),
+('Ships', 'Intricately detailed ship models.', NULL, NULL),
+('Trains', 'Realistic train models and sets.', NULL, NULL),
+('Trucks and Buses', 'Diecast models of trucks and buses.', NULL, NULL),
+('Vintage Cars', 'Models of cars from the early 20th century.', NULL, NULL),
+('Race Cars', 'Models of famous race cars.', NULL, NULL),
+('Convertibles', 'Diecast convertible car models.', NULL, NULL),
+('Coupes', 'Diecast coupe car models.', NULL, NULL),
+('Fighters', 'Models of fighter jets.', NULL, NULL),
+('Bombers', 'Models of bomber planes.', NULL, NULL),
+('Sailboats', 'Models of sailboats and yachts.', NULL, NULL),
+('Steam Locomotives', 'Models of classic steam trains.', NULL, NULL),
+('Construction Vehicles', 'Models of construction trucks.', NULL, NULL),
+('Emergency Vehicles', 'Models of fire trucks, police cars, etc.', NULL, NULL),
+('Modern Cars', 'Models of contemporary automobiles.', NULL, NULL),
+('Sports Cars', 'Models of high-performance sports cars.', NULL, NULL),
+('Sedans', 'Models of sedan cars.', NULL, NULL),
+('SUVs', 'Models of sport utility vehicles.', NULL, NULL);
+
+/* offices */
+INSERT INTO offices VALUES
+('1', 'San Francisco', '123456', '123 Main St', NULL, 'CA', 'USA', '94016', 'NA'),
+('2', 'Boston', '123457', '456 Elm St', NULL, 'MA', 'USA', '02101', 'NA'),
+('3', 'NYC', '123458', '789 Oak St', NULL, 'NY', 'USA', '10001', 'NA'),
+('4', 'Dallas', '123459', '101 Pine St', NULL, 'TX', 'USA', '75001', 'NA'),
+('5', 'Chicago', '123460', '202 Maple St', NULL, 'IL', 'USA', '60007', 'NA'),
+('6', 'Miami', '123461', '303 Cedar St', NULL, 'FL', 'USA', '33101', 'NA'),
+('7', 'Seattle', '123462', '404 Birch St', NULL, 'WA', 'USA', '98101', 'NA'),
+('8', 'Denver', '123463', '505 Spruce St', NULL, 'CO', 'USA', '80201', 'NA'),
+('9', 'Atlanta', '123464', '606 Fir St', NULL, 'GA', 'USA', '30301', 'NA'),
+('10', 'LA', '123465', '707 Redwood St', NULL, 'CA', 'USA', '90001', 'NA'),
+('11', 'London', '44-20-7946-0100', '10 Downing St', NULL, NULL, 'UK', 'SW1A 2AA', 'EMEA'),
+('12', 'Paris', '33-1-84-88-8444', 'Rue de Rivoli', NULL, NULL, 'France', '75001', 'EMEA'),
+('13', 'Tokyo', '81-3-3224-5000', 'Chiyoda-ku', NULL, NULL, 'Japan', '100-8919', 'Japan'),
+('14', 'Sydney', '61-2-9262-4000', 'George St', NULL, 'NSW', 'Australia', '2000', 'APAC'),
+('15', 'Singapore', '65-6332-7600', 'Orchard Rd', NULL, NULL, 'Singapore', '238880', 'APAC'),
+('16', 'Frankfurt', '49-69-2166-0', 'Mainzer Landstraße', NULL, NULL, 'Germany', '60329', 'EMEA'),
+('17', 'Madrid', '34-91-177-8000', 'Gran Vía', NULL, NULL, 'Spain', '28013', 'EMEA'),
+('18', 'Vancouver', '1-604-688-2771', 'Water St', NULL, 'BC', 'Canada', 'V6B 1A3', 'NA'),
+('19', 'Mexico City', '52-55-5063-4000', 'Paseo de la Reforma', NULL, NULL, 'Mexico', '06600', 'NA'),
+('20', 'Hong Kong', '852-2848-3888', 'Central District', NULL, NULL, 'Hong Kong', '999077', 'APAC');
+
+/* employees */
+INSERT INTO employees VALUES
+(1001, 'Smith', 'John', 'x101', 'john@example.com', '1', NULL, 'President'),
+(1002, 'Doe', 'Jane', 'x102', 'jane.doe@example.com', '2', 1001, 'VP Sales'),
+(1003, 'Brown', 'Charlie', 'x103', 'charlie.b@example.com', '3', 1002, 'Sales Manager'),
+(1004, 'White', 'Betty', 'x104', 'betty.w@example.com', '4', 1002, 'Sales Rep'),
+(1005, 'Black', 'Steve', 'x105', 'steve.b@example.com', '5', 1002, 'Sales Rep'),
+(1006, 'Grey', 'Anna', 'x106', 'anna.g@example.com', '6', 1002, 'Sales Rep'),
+(1007, 'Green', 'Nina', 'x107', 'nina.g@example.com', '7', 1002, 'Sales Rep'),
+(1008, 'Blue', 'Tom', 'x108', 'tom.b@example.com', '8', 1002, 'Sales Rep'),
+(1009, 'Red', 'Jerry', 'x109', 'jerry.r@example.com', '9', 1003, 'Sales Rep'),
+(1010, 'Gold', 'Alice', 'x110', 'alice.g@example.com', '10', 1003, 'Sales Rep'),
+(1011, 'Silver', 'Bob', 'x111', 'bob.s@example.com', '11', 1002, 'Sales Rep'),
+(1012, 'Copper', 'Cindy', 'x112', 'cindy.c@example.com', '12', 1003, 'Sales Rep'),
+(1013, 'Bronze', 'David', 'x113', 'david.b@example.com', '13', 1002, 'Sales Rep'),
+(1014, 'Platinum', 'Eva', 'x114', 'eva.p@example.com', '14', 1003, 'Sales Rep'),
+(1015, 'Titanium', 'Frank', 'x115', 'frank.t@example.com', '15', 1002, 'Sales Rep'),
+(1016, 'Iron', 'Grace', 'x116', 'grace.i@example.com', '16', 1003, 'Sales Rep'),
+(1017, 'Steel', 'Henry', 'x117', 'henry.s@example.com', '17', 1002, 'Sales Rep'),
+(1018, 'Zinc', 'Ivy', 'x118', 'ivy.z@example.com', '18', 1003, 'Sales Rep'),
+(1019, 'Lead', 'Jack', 'x119', 'jack.l@example.com', '19', 1002, 'Sales Rep'),
+(1020, 'Nickel', 'Kelly', 'x120', 'kelly.n@example.com', '20', 1003, 'Sales Rep');
+
+
+/* customers */
+INSERT INTO customers VALUES
+(2001, 'Alpha Inc', 'Anderson', 'Amy', '987654', '10 Park Ave', NULL, 'LA', 'CA', '90001', 'USA', 1004, 50000.00),
+(2002, 'Beta LLC', 'Brown', 'Bob', '987655', '11 Elm Blvd', NULL, 'NYC', 'NY', '10001', 'USA', 1005, 60000.00),
+(2003, 'Gamma Corp', 'Clark', 'Cathy', '987656', '12 Oak Lane', NULL, 'Boston', 'MA', '02101', 'USA', 1006, 70000.00),
+(2004, 'Delta Co', 'Davis', 'David', '987657', '13 Pine Ct', NULL, 'Dallas', 'TX', '75001', 'USA', 1007, 80000.00),
+(2005, 'Epsilon Ltd', 'Evans', 'Eva', '987658', '14 Maple Rd', NULL, 'Chicago', 'IL', '60007', 'USA', 1008, 90000.00),
+(2006, 'Zeta PLC', 'Frank', 'Fay', '987659', '15 Cedar Way', NULL, 'Miami', 'FL', '33101', 'USA', 1009, 55000.00),
+(2007, 'Eta GmbH', 'Garcia', 'Gary', '987660', '16 Birch St', NULL, 'Seattle', 'WA', '98101', 'USA', 1010, 65000.00),
+(2008, 'Theta AG', 'Hill', 'Hank', '987661', '17 Spruce Dr', NULL, 'Denver', 'CO', '80201', 'USA', 1011, 75000.00),
+(2009, 'Iota AB', 'Irwin', 'Ian', '987662', '18 Fir Ave', NULL, 'Atlanta', 'GA', '30301', 'USA', 1012, 85000.00),
+(2010, 'Kappa NV', 'Jones', 'Jill', '987663', '19 Redwood Blvd', NULL, 'San Francisco', 'CA', '94016', 'USA', 1013, 95000.00),
+(2011, 'Lambda SA', 'Kowalski', 'Karl', '987664', '20 Cherry Lane', NULL, 'London', NULL, 'SW1A 2AA', 'UK', 1014, 52000.00),
+(2012, 'Mu Ltd', 'Leblanc', 'Louis', '987665', '21 Lilac Ct', NULL, 'Paris', NULL, '75001', 'France', 1015, 62000.00),
+(2013, 'Nu Corp', 'Miller', 'Mia', '987666', '22 Orange St', NULL, 'Tokyo', NULL, '100-8919', 'Japan', 1016, 72000.00),
+(2014, 'Xi Co', 'Nelson', 'Nora', '987667', '23 Pear Way', NULL, 'Sydney', 'NSW', '2000', 'Australia', 1017, 82000.00),
+(2015, 'Omicron LLC', 'Ortega', 'Oscar', '987668', '24 Peach Rd', NULL, 'Singapore', NULL, '238880', 'Singapore', 1018, 92000.00),
+(2016, 'Pi Inc', 'Patel', 'Priya', '987669', '25 Mango St', NULL, 'Frankfurt', NULL, '60329', 'Germany', 1019, 58000.00),
+(2017, 'Rho GmbH', 'Quinn', 'Quentin', '987670', '26 Grape Blvd', NULL, 'Madrid', NULL, '28013', 'Spain', 1020, 68000.00),
+(2018, 'Sigma AG', 'Roberts', 'Rachel', '987671', '27 Apple Way', NULL, 'Vancouver', 'BC', 'V6B 1A3', 'Canada', 1004, 78000.00),
+(2019, 'Tau AB', 'Stewart', 'Steve', '987672', '28 Banana Ct', NULL, 'Mexico City', NULL, '06600', 'Mexico', 1005, 88000.00),
+(2020, 'Upsilon NV', 'Taylor', 'Tina', '987673', '29 Fig Lane', NULL, 'Hong Kong', NULL, '999077', 'Hong Kong', 1006, 98000.00);
+
+
+/* products */
+INSERT INTO products VALUES
+('S10_1000', '1957 Chevy Convertible', 'Classic Cars', '1:18', 'Classic Diecast', 'Highly detailed model of a 1957 Chevrolet Convertible.', 15, 55.00, 100.00),
+('S10_1001', '1969 Harley Davidson Ultimate Chopper', 'Motorcycles', '1:10', 'Motor City Art Classics', 'Detailed model of a classic Harley Davidson chopper.', 10, 65.00, 115.00),
+('S10_1002', 'Cessna 182 Skylane', 'Planes', '1:72', 'Planes of the World', 'Scale model of the famous Cessna 182 aircraft.', 8, 85.00, 140.00),
+('S10_1003', 'Titanic', 'Ships', '1:350', 'Models of the World', 'Historic model of the RMS Titanic.', 4, 65.00, 110.00),
+('S10_1004', 'Shinkansen Bullet Train', 'Trains', '1:50', 'Train Models Inc.', 'Model of the Japanese high-speed bullet train.', 6, 55.00, 90.00),
+('S10_1005', '1957 Ford Pickup', 'Trucks and Buses', '1:20', 'Classic Diecast', 'Diecast model of a vintage Ford pickup truck.', 12, 45.00, 80.00),
+('S10_1006', '1962 Volkswagen Beetle', 'Vintage Cars', '1:18', 'Model Diecast', 'Classic VW Beetle model.', 20, 35.00, 70.00),
+('S10_1007', 'McLaren Formula 1', 'Race Cars', '1:24', 'Race Models', 'Model of a modern Formula 1 race car.', 9, 125.00, 200.00),
+('S10_1008', '1965 Ford Mustang Convertible', 'Convertibles', '1:18', 'Motor City Art Classics', 'Model of the iconic 1965 Mustang convertible.', 18, 105.00, 160.00),
+('S10_1009', '1970 Plymouth Hemi Cuda', 'Coupes', '1:18', 'Classic Diecast', 'Model of the powerful Hemi Cuda coupe.', 11, 115.00, 170.00),
+('S18_1010', 'F-22 Raptor', 'Fighters', '1:72', 'Planes of the World', 'Scale model of the F-22 fighter jet.', 7, 95.00, 155.00),
+('S18_1011', 'B-17 Flying Fortress', 'Bombers', '1:100', 'Planes of the World', 'Model of the famous B-17 bomber.', 5, 150.00, 250.00),
+('S18_1012', 'America''s Cup Yacht', 'Sailboats', '1:700', 'Models of the World', 'Model of a modern racing yacht.', 3, 80.00, 130.00),
+('S18_1013', 'Union Pacific Big Boy', 'Steam Locomotives', '1:87', 'Train Models Inc.', 'Model of the massive Big Boy steam locomotive.', 2, 200.00, 350.00),
+('S18_1014', 'Caterpillar Excavator', 'Construction Vehicles', '1:50', 'Truck Models', 'Model of a large excavator.', 6, 70.00, 120.00),
+('S18_1015', 'New York Fire Truck', 'Emergency Vehicles', '1:43', 'Truck Models', 'Model of a typical New York fire truck.', 8, 60.00, 100.00),
+('S18_1016', '2023 Toyota Camry', 'Modern Cars', '1:24', 'Car Models Inc.', 'Model of a contemporary sedan.', 25, 25.00, 50.00),
+('S18_1017', 'Porsche 911 GT3', 'Sports Cars', '1:18', 'Race Models', 'Model of a high-performance sports car.', 14, 130.00, 220.00),
+('S18_1018', 'Honda Accord', 'Sedans', '1:24', 'Car Models Inc.', 'Model of a popular sedan.', 22, 28.00, 55.00),
+('S18_1019', 'Jeep Wrangler', 'SUVs', '1:18', 'Offroad Models', 'Model of a rugged SUV.', 17, 48.00, 90.00);
+
+
+/* orders */
+INSERT INTO orders VALUES
+(3001, '2023-05-01', '2023-05-08', '2023-05-05', 'Shipped', NULL, 2001),
+(3002, '2023-05-02', '2023-05-09', '2023-05-06', 'Shipped', NULL, 2002),
+(3003, '2023-05-03', '2023-05-10', '2023-05-07', 'Shipped', NULL, 2003),
+(3004, '2023-05-04', '2023-05-11', '2023-05-08', 'Shipped', NULL, 2004),
+(3005, '2023-05-05', '2023-05-12', '2023-05-09', 'Shipped', NULL, 2005),
+(3006, '2023-05-06', '2023-05-13', '2023-05-10', 'Shipped', NULL, 2006),
+(3007, '2023-05-07', '2023-05-14', '2023-05-11', 'Shipped', NULL, 2007),
+(3008, '2023-05-08', '2023-05-15', '2023-05-12', 'Shipped', NULL, 2008),
+(3009, '2023-05-09', '2023-05-16', '2023-05-13', 'Shipped', NULL, 2009),
+(3010, '2023-05-10', '2023-05-17', '2023-05-14', 'Shipped', NULL, 2010),
+(3011, '2023-05-11', '2023-05-18', NULL, 'In Process', 'Customer requested delayed shipping', 2011),
+(3012, '2023-05-12', '2023-05-19', '2023-05-16', 'Shipped', NULL, 2012),
+(3013, '2023-05-13', '2023-05-20', NULL, 'In Process', NULL, 2013),
+(3014, '2023-05-14', '2023-05-21', '2023-05-18', 'Shipped', NULL, 2014),
+(3015, '2023-05-15', '2023-05-22', '2023-05-19', 'Shipped', 'Rush order', 2015),
+(3016, '2023-05-16', '2023-05-23', NULL, 'In Process', NULL, 2016),
+(3017, '2023-05-17', '2023-05-24', '2023-05-21', 'Shipped', NULL, 2017),
+(3018, '2023-05-18', '2023-05-25', NULL, 'On Hold', 'Customer address issue', 2018),
+(3019, '2023-05-19', '2023-05-26', '2023-05-23', 'Shipped', NULL, 2019),
+(3020, '2023-05-20', '2023-05-27', '2023-05-24', 'Shipped', NULL, 2020);
+
+
+/* payments */
+INSERT INTO payments VALUES
+(2001, 'CHK1001', '2023-01-01', 1000.00),
+(2002, 'CHK1002', '2023-01-05', 2500.00),
+(2003, 'CHK1003', '2023-01-10', 3200.00),
+(2004, 'CHK1004', '2023-01-15', 1800.00),
+(2005, 'CHK1005', '2023-01-20', 5100.00),
+(2006, 'CHK1006', '2023-01-25', 6500.00),
+(2007, 'CHK1007', '2023-02-01', 7300.00),
+(2008, 'CHK1008', '2023-02-05', 8900.00),
+(2009, 'CHK1009', '2023-02-10', 9400.00),
+(2010, 'CHK1010', '2023-02-15', 10500.00),
+(2011, 'CHK1011', '2023-02-20', 1200.00),
+(2012, 'CHK1012', '2023-02-25', 3500.00),
+(2013, 'CHK1013', '2023-03-01', 4100.00),
+(2014, 'CHK1014', '2023-03-05', 2900.00),
+(2015, 'CHK1015', '2023-03-10', 5800.00),
+(2016, 'CHK1016', '2023-03-15', 7100.00),
+(2017, 'CHK1017', '2023-03-20', 8500.00),
+(2018, 'CHK1018', '2023-03-25', 9900.00),
+(2019, 'CHK1019', '2023-04-01', 11200.00),
+(2020, 'CHK1020', '2023-04-05', 13500.00);
+
+
+/* orderdetails */
+INSERT INTO orderdetails VALUES
+(3001, 'S10_1000', 2, 100.00, 1),
+(3002, 'S10_1001', 1, 115.00, 1),
+(3003, 'S10_1002', 3, 140.00, 1),
+(3004, 'S10_1003', 1, 110.00, 1),
+(3005, 'S10_1004', 2, 90.00, 1),
+(3006, 'S10_1005', 1, 80.00, 1),
+(3007, 'S10_1006', 4, 70.00, 1),
+(3008, 'S10_1007', 1, 200.00, 1),
+(3009, 'S10_1008', 2, 160.00, 1),
+(3010, 'S10_1009', 1, 170.00, 1),
+(3011, 'S18_1010', 1, 155.00, 1),
+(3012, 'S18_1011', 1, 250.00, 1),
+(3013, 'S18_1012', 2, 130.00, 1),
+(3014, 'S18_1013', 1, 350.00, 1),
+(3015, 'S18_1014', 3, 120.00, 1),
+(3016, 'S18_1015', 1, 100.00, 1),
+(3017, 'S18_1016', 5, 50.00, 1),
+(3018, 'S18_1017', 1, 220.00, 1),
+(3019, 'S18_1018', 4, 55.00, 1),
+(3020, 'S18_1019', 2, 90.00, 1);
