@@ -109,7 +109,7 @@ def merge_summaries(summaries):
                 merged[key].extend(value_list)
     return merged
 
-def write_summary_report(final_summary, output_file_path, report_title=None, files_with_errors=None, files_without_errors=None):
+def write_summary_report(final_summary, output_file_path, report_title=None, files_with_errors=None, files_without_errors=None, is_quiet=False): # --- MODIFIED
     """
     Writes the final summary report, including a file-level summary.
     """
@@ -120,27 +120,28 @@ def write_summary_report(final_summary, output_file_path, report_title=None, fil
             else:
                 f_out.write("## ANALYSIS SUMMARY\n\n")
 
-            # --- New File Summary Section ---
-            f_out.write("### File-Level Summary\n\n")
-            if files_without_errors is not None:
-                f_out.write(f"**Files with NO errors ({len(files_without_errors)}):**\n")
-                if files_without_errors:
-                    for filename in sorted(files_without_errors):
-                        f_out.write(f"- `{filename}`\n")
-                else:
-                    f_out.write("- None\n")
-                f_out.write("\n")
+            # --- New File Summary Section (conditional) --- # --- MODIFIED
+            if not is_quiet:
+                f_out.write("### File-Level Summary\n\n")
+                if files_without_errors is not None:
+                    f_out.write(f"**Files with NO errors ({len(files_without_errors)}):**\n")
+                    if files_without_errors:
+                        for filename in sorted(files_without_errors):
+                            f_out.write(f"- `{filename}`\n")
+                    else:
+                        f_out.write("- None\n")
+                    f_out.write("\n")
 
-            if files_with_errors is not None:
-                f_out.write(f"**Files with errors ({len(files_with_errors)}):**\n")
-                if files_with_errors:
-                    for filename in sorted(files_with_errors):
-                        f_out.write(f"- `{filename}`\n")
-                else:
-                    f_out.write("- None\n")
-                f_out.write("\n")
-            
-            f_out.write("---\n\n") # Separator
+                if files_with_errors is not None:
+                    f_out.write(f"**Files with errors ({len(files_with_errors)}):**\n")
+                    if files_with_errors:
+                        for filename in sorted(files_with_errors):
+                            f_out.write(f"- `{filename}`\n")
+                    else:
+                        f_out.write("- None\n")
+                    f_out.write("\n")
+                
+                f_out.write("---\n\n") # Separator
 
             # --- Existing Issue Breakdown Section ---
             total_issues = sum(len(v) for v in final_summary.values())
@@ -162,6 +163,8 @@ def write_summary_report(final_summary, output_file_path, report_title=None, fil
                         f_out.write(f"\n## DETAILS: {title} ({len(error_list)})\n\n")
                         for error_detail in sorted(error_list):
                             f_out.write(f"- {error_detail}\n")
+            elif is_quiet: # --- ADDED
+                f_out.write("No issues found.\n")
 
     except IOError as e:
         print(f"Error writing report to '{output_file_path}': {e}", file=sys.stderr)
@@ -186,6 +189,8 @@ if __name__ == "__main__":
     parser.add_argument("diff_file_paths", nargs='+', help="One or more paths to the input .diff files.")
     parser.add_argument("--output", "-o", dest="output_file_path", required=True, help="Path for the output .txt report.")
     parser.add_argument("--title", dest="report_title", default=None, help="Optional: Custom title for the analysis report.")
+    # --- ADDED ARGUMENT ---
+    parser.add_argument("--quiet", action="store_true", help="Suppresses the file-level summary in the report and console output.")
     args = parser.parse_args()
 
     try:
@@ -213,13 +218,17 @@ if __name__ == "__main__":
                 files_without_errors.append(basename)
 
         final_summary = merge_summaries(summaries_to_merge)
-        write_summary_report(final_summary, args.output_file_path, args.report_title, files_with_errors, files_without_errors)
+        # --- MODIFIED CALL ---
+        write_summary_report(final_summary, args.output_file_path, args.report_title, files_with_errors, files_without_errors, args.quiet)
 
-        print("\nAnalysis complete.")
-        if files_with_errors:
-            print(f"  - Files with errors: {len(files_with_errors)}")
-        if files_without_errors:
-            print(f"  - Files with no errors: {len(files_without_errors)}")
+        # --- MODIFIED CONSOLE OUTPUT ---
+        if not args.quiet:
+            print("\nAnalysis complete.")
+            if files_with_errors:
+                print(f"  - Files with errors: {len(files_with_errors)}")
+            if files_without_errors:
+                print(f"  - Files with no errors: {len(files_without_errors)}")
+        
         print(f"Report written to '{args.output_file_path}'")
 
     except Exception as e:

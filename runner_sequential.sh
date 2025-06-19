@@ -15,20 +15,40 @@ ANALYSIS_DIR="./analysis"
 # Create output folders if they don’t exist to prevent errors
 mkdir -p "$RES_DIR" "$DIFF_DIR" "$ANALYSIS_DIR"
 
-# --- Validation ---
-# Check if at least one argument is provided.
+# --- File Selection Logic ---
+# Declare an array to hold the basenames of the files to be processed.
+declare -a BASENAMES_TO_PROCESS
+
+# If no arguments are provided, find all .sql files in the SQL_DIR.
+# Otherwise, use the provided arguments.
 if [ "$#" -eq 0 ]; then
-  echo "Usage: $0 [basename1] [basename2] ..."
-  echo "Example: $0 aggregation filtering select"
-  exit 1
+    echo "No arguments given. Automatically finding all .sql files in ${SQL_DIR}..."
+    # Find all .sql files, get their basenames without the extension, and add to the array
+    for sql_file in "${SQL_DIR}"/*.sql; do
+        if [ -e "$sql_file" ]; then # Check if file exists to handle cases where no *.sql files are found
+            BASENAMES_TO_PROCESS+=("$(basename "$sql_file" .sql)")
+        fi
+    done
+    
+    # Validate that files were actually found
+    if [ ${#BASENAMES_TO_PROCESS[@]} -eq 0 ]; then
+        echo "❌ Error: No .sql files found in '${SQL_DIR}'. Exiting."
+        exit 1
+    fi
+    echo "Found ${#BASENAMES_TO_PROCESS[@]} files to process."
+else
+    # If arguments are provided, use them directly.
+    echo "Arguments provided. Processing the specified files..."
+    BASENAMES_TO_PROCESS=("$@")
 fi
+
 
 # --- Main Processing (Steps 1 & 2) ---
 # Declare an array to hold the paths of all generated diff files for final analysis.
 declare -a DIFF_FILES_TO_ANALYZE=()
 
-# Loop over all basenames provided as arguments to generate diffs first.
-for FILENAME in "$@"; do
+# Loop over all selected basenames to generate diffs first.
+for FILENAME in "${BASENAMES_TO_PROCESS[@]}"; do
     echo "========================================"
     echo "▶️  Preprocessing: $FILENAME"
     echo "========================================"
@@ -84,9 +104,11 @@ else
           FILENAME=$(basename "$diff_file" .diff)
           ANALYSIS_FILE="${ANALYSIS_DIR}/${FILENAME}_sequential_report.txt"
           echo "  -> Analyzing $diff_file..."
+          # --- MODIFIED CALL ---
           python3 analyzer.py "$diff_file" \
               -o "$ANALYSIS_FILE" \
-              --title "SEQUENTIAL ANALYSIS: $FILENAME"
+              --title "SEQUENTIAL ANALYSIS: $FILENAME" \
+              --quiet
       done
     )
     

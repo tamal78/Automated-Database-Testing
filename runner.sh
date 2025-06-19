@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # This script automates the database testing workflow.
-# It takes one or more SQL file basenames as arguments (e.g., "aggregation", "filtering").
-# It processes each file and then runs a single combined analysis at the end.
+# If called with no arguments, it runs for all .sql files in the 'features' directory.
+# If called with arguments (e.g., "aggregation", "filtering"), it runs only for those files.
 
 # --- Folder Configuration ---
 SQL_DIR="./features"
@@ -14,20 +14,37 @@ ANALYSIS_DIR="./analysis"
 # Create output folders if they don’t exist to prevent errors
 mkdir -p "$RES_DIR" "$DIFF_DIR" "$ANALYSIS_DIR"
 
-# --- Validation ---
-# Check if at least one argument is provided.
+# --- Argument Handling ---
+# Declare an array to hold the basenames of the files to be processed.
+declare -a FILES_TO_PROCESS=()
+
+# If no arguments are provided, find all .sql files in the features directory.
 if [ "$#" -eq 0 ]; then
-  echo "Usage: $0 [basename1] [basename2] ..."
-  echo "Example: $0 aggregation filtering select"
-  exit 1
+  echo "No specific files provided. Discovering all .sql files in '${SQL_DIR}'..."
+  
+  # Check if the directory is empty or has no .sql files to prevent errors.
+  if ! ls "${SQL_DIR}"/*.sql &> /dev/null; then
+      echo "No .sql files found in '${SQL_DIR}'. Exiting."
+      exit 1
+  fi
+  
+  # Loop through all .sql files and add their basenames (without extension) to the list.
+  for sql_file in "${SQL_DIR}"/*.sql; do
+    FILES_TO_PROCESS+=("$(basename "$sql_file" .sql)")
+  done
+else
+  # If arguments are provided, use them as the list of files to process.
+  echo "Running for specified files: $@"
+  FILES_TO_PROCESS=("$@")
 fi
+
 
 # --- Main Processing ---
 # Declare an array to hold the paths of all generated diff files for final analysis.
 declare -a DIFF_FILES_TO_ANALYZE=()
 
-# Loop over all basenames provided as arguments.
-for FILENAME in "$@"; do
+# Loop over the collected basenames. This now works for both modes.
+for FILENAME in "${FILES_TO_PROCESS[@]}"; do
     echo "========================================"
     echo "▶️  Processing: $FILENAME"
     echo "========================================"

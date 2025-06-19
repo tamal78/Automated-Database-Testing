@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# --- Configuration: Enter your database details here ---
+DB_HOST="localhost"
+DB_USER="admin"
+DB_PASS="password"
+# ---------------------------------------------------------
+
 SQL_FILE="$1"
 OUTPUT_FILE="$2"
 
@@ -7,6 +13,9 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
+
+# Still a good idea to be aware of the security risk of plain-text passwords.
+# A MySQL option file (~/.my.cnf) is the most secure method.
 
 if [ -z "$SQL_FILE" ]; then
     echo -e "${RED}Error: No SQL file provided.${NC}"
@@ -24,8 +33,7 @@ if [ -z "$OUTPUT_FILE" ]; then
     echo -e "${YELLOW}Warning: No output file specified. Using default '$OUTPUT_FILE'.${NC}"
 fi
 
-# This line was removed: echo "Starting query execution log..." > "$OUTPUT_FILE"
-> "$OUTPUT_FILE" 
+> "$OUTPUT_FILE"
 
 DB_NAME=$(sed -n -e 's/^[[:space:]]*USE[[:space:]]\+\([^;[:space:]]*\).*/\1/pI' -e q "$SQL_FILE" | tr -d '\r')
 
@@ -77,31 +85,27 @@ while IFS= read -r line || [ -n "$line" ]; do
             echo "$CURRENT_HEADER" >> "$OUTPUT_FILE"
         fi
 
-        # The following lines that printed the full query have been removed.
-        # echo "Executing Query #$QUERY_COUNT:" >> "$OUTPUT_FILE"
-        # cat "$TEMP_QUERY" >> "$OUTPUT_FILE"
-        
         echo "--- Result ---" >> "$OUTPUT_FILE"
 
         START_TIME=$(date +%s.%N)
 
-        if sudo mysql -D "$DB_NAME" -B < "$TEMP_QUERY" >> "$OUTPUT_FILE" 2>> "$OUTPUT_FILE"; then
+        # MODIFIED: Use MYSQL_PWD environment variable to provide the password.
+        # This removes the command-line warning. Note the -p flag is now gone.
+        if export MYSQL_PWD="$DB_PASS"; mysql -h"$DB_HOST" -u"$DB_USER" -D "$DB_NAME" -B < "$TEMP_QUERY" >> "$OUTPUT_FILE" 2>> "$OUTPUT_FILE"; then
             END_TIME=$(date +%s.%N)
             EXEC_TIME=$(echo "$END_TIME - $START_TIME" | bc)
             EXEC_TIME=$(printf "%.4f" "$EXEC_TIME")
             echo -e "${GREEN}✓ Query $QUERY_COUNT Successful in ${EXEC_TIME} seconds:${NC} ${CURRENT_HEADER#-- }"
             ((SUCCESS_COUNT++))
             echo "--- End Result (Success) ---" >> "$OUTPUT_FILE"
-            # This line was removed: echo "Execution Time: ${EXEC_TIME} seconds" >> "$OUTPUT_FILE"
         else
-            END_TIME=$(date +%s.%N)
+            END_TIME=$(date +s.%N)
             EXEC_TIME=$(echo "$END_TIME - $START_TIME" | bc)
             EXEC_TIME=$(printf "%.4f" "$EXEC_TIME")
             MYSQL_ERROR_CODE=$?
             echo -e "${RED}✗ Query $QUERY_COUNT Failed (Exit Code: $MYSQL_ERROR_CODE) in ${EXEC_TIME} seconds:${NC} ${CURRENT_HEADER#-- }"
             ((FAILURE_COUNT++))
             echo "--- End Result (Failure) ---" >> "$OUTPUT_FILE"
-            # This line was removed: echo "Execution Time: ${EXEC_TIME} seconds" >> "$OUTPUT_FILE"
         fi
 
         echo "" >> "$OUTPUT_FILE"

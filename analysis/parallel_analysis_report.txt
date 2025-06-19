@@ -1,0 +1,21 @@
+## COMBINED PARALLEL ANALYSIS
+
+### File-Level Summary
+
+**Files with NO errors (10):**
+- `aggregation.diff`
+- `between.diff`
+- `create-drop.diff`
+- `joins.diff`
+- `like.diff`
+- `limit.diff`
+- `logical.diff`
+- `order_by.diff`
+- `select.diff`
+- `sets.diff`
+
+**Files with errors (0):**
+- None
+
+---
+
